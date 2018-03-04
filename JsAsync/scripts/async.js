@@ -14,6 +14,8 @@ function Response(endpoint, responseCode, durationMs, message) {
 
 // Entry point
 $(document).ready(function () {
+    $.ajaxSetup({ cache: false });
+
     var endpoints = ["stanza1", "stanza2", "stanza3", "author"];
 
     for (var i = 0; i < endpoints.length; i++) {
@@ -22,7 +24,7 @@ $(document).ready(function () {
 
     //This will run once all async operations have successfully finished
     Promise.all(promises).then(
-        function success(result) {            
+        function success(result) {
             for (var i = 0; i < result.length; i++) {
                 displayResponse(result[i]);
             }
@@ -46,24 +48,24 @@ function performApiCall(endpoint) {
     return new Promise(function (resolve, reject) {
         $.ajax({
             url: apiUrl + endpoint,
-            type: "GET",
+            type: "GET",           
             async: true,
-            dataType: "JSON",
+            dataType: "JSON",      
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("x-api-key", basicAuthKey);
+                xhr.setRequestHeader("x-api-key", basicAuthKey);               
             },
-            complete: function (xhr) {
+            success: function (data, textStatus, xhr) {
                 try {
                     responseTime = (new Date().getTime() - startTime);
-                    var resp = new Response(endpoint, xhr.status, responseTime, xhr.responseJSON.message);
+                    var resp = new Response(endpoint, xhr.status, responseTime, data.message);
                     resolve(resp);
                 }
                 catch (err) {
-                    reject({ endpoint: endpoint, response: xhr });
+                    reject({ endpoint: endpoint, status: textStatus, response: err });
                 }
             },
-            error: function (xhr) {
-                reject({ endpoint: endpoint, response: xhr });
+            error: function (xhr, textStatus, errorThrown) {
+                reject({ endpoint: endpoint, status: textStatus, response: errorThrown });
             }
         });
     });
