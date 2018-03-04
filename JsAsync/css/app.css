@@ -1,0 +1,11 @@
+﻿body {
+    font-family: 'Segoe UI', sans-serif;
+}
+
+#output {
+    font-size: 20px;
+}
+
+.endpoint {
+    color: red;
+}
